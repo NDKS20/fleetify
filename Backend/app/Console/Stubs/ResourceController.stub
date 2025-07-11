@@ -1,0 +1,92 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Helpers\Error;
+use App\Helpers\HasPermissionRestrictions;
+use Illuminate\Http\Request;
+use App\Models\{{ model }};
+use App\Services\{{ service }};
+
+class {{ class }} extends Controller
+{
+    use HasPermissionRestrictions;
+
+    const PERMISSIONS = [
+        'index' => ['read-'],
+        'show' => ['read-'],
+        'store' => ['create-'],
+        'update' => ['edit-'],
+        'destroy' => ['delete-'],
+    ];
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        return $this->respond({{ service }}::getAllByRequest($request));
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        return $this->respond({{ service }}::get($id));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $data = {{ model }}::validate($request->all());
+
+        if ($data instanceof Error) {
+            return $this->respondError($data);
+        }
+
+        $model = {{ service }}::store($data);
+
+        if ($model instanceof Error) {
+            return $this->respondError($model);
+        }
+
+        return $this->respondWithMessage($model, 'Data {{ model }} berhasil ditambahkan', 201);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $data = {{ model }}::validateUpdate($id, $request->all());
+
+        if ($data instanceof Error) {
+            return $this->respondError($data);
+        }
+
+        $model = {{ service }}::update($id, $data);
+
+        if ($model instanceof Error) {
+            return $this->respondError($model);
+        }
+
+        return $this->respondWithMessage($model, 'Data {{ model }} berhasil diubah', 200);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $result = {{ service }}::delete($id);
+
+        if ($result instanceof Error) {
+            return $this->respondError($result);
+        }
+
+        return $this->respondWithMessage($result, 'Data {{ model }} berhasil dihapus', 200);
+    }
+}

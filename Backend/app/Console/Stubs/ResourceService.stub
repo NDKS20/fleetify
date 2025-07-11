@@ -1,0 +1,132 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Helpers\Error;
+use App\Models\{{ model }};
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+class {{ class }} implements ResourceService
+{
+    public static function getAll($sorter = null, $search = null, $page = null, $perPage = null)
+    {
+        return {{ model }}::fetch(
+            sorter: $sorter,
+            search: $search,
+            page: $page,
+            perPage: $perPage,
+            // TODO: Add searchColumns
+            searchColumns: [''],
+        );
+    }
+
+    public static function getAllByRequest(Request $request)
+    {
+        // TODO: Add searchColumns
+        return {{ model }}::fetchByRequest($request, ['']);
+    }
+
+    public static function get(string $id): {{ model }}|Error
+    {
+        try {
+            return {{ model }}::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            Log::error($e);
+            return new Error('Data {{ model }} tidak ditemukan', 404);
+        } catch (Exception $e) {
+            Log::error($e);
+            return new Error('Terjadi kesalahan', 400);
+        }
+    }
+
+    public static function store(array $data): {{ model }}|Error
+    {
+        try {
+            DB::beginTransaction();
+
+            // NOTE: Add your custom logic here
+
+            $model = {{ model }}::create($data);
+
+            if (!$model) {
+                throw new Exception('Gagal menambahkan data {{ model }}');
+            }
+
+            DB::commit();
+
+            return $model;
+        } catch (ModelNotFoundException $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return new Error('Data {{ model }} sudah ada', 422);
+        } catch (Exception $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return new Error($e->getMessage(), 400);
+        }
+    }
+
+    public static function update(string $id, array $data): {{ model }}|Error
+    {
+        try {
+            DB::beginTransaction();
+
+            $model = {{ model }}::findOrFail($id);
+
+            // NOTE: Add your custom logic here
+
+            if (!$model->update($data)) {
+                throw new Exception('Gagal mengubah data {{ model }}');
+            }
+
+            DB::commit();
+
+            return $model;
+        } catch (ModelNotFoundException $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return new Error('Data {{ model }} tidak ditemukan', 404);
+        } catch (Exception $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return new Error($e->getMessage(), 400);
+        }
+    }
+
+    public static function delete(string $id): null|Error
+    {
+        try {
+            DB::beginTransaction();
+
+            $model = {{ model }}::findOrFail($id);
+
+            // NOTE: Add your custom logic here
+
+            if (!$model->delete()) {
+                throw new Exception('Gagal menghapus data {{ model }}');
+            }
+
+            DB::commit();
+
+            return null;
+        } catch (ModelNotFoundException $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return new Error('Data {{ model }} tidak ditemukan', 404);
+        } catch (Exception $e) {
+            Log::error($e);
+            DB::rollBack();
+
+            return new Error($e->getMessage(), 400);
+        }
+    }
+}
