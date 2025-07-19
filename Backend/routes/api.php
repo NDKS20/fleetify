@@ -6,17 +6,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AttendanceController;
 
 // 👉 Anyone can access these routes
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login'])->name('auth.login');
 });
-
-// 👉 Nilai endpoints
-Route::get('nilaiRT', [NilaiController::class, 'nilaiRT'])->name('nilai.rt');
-Route::get('nilaiST', [NilaiController::class, 'nilaiST'])->name('nilai.st');
 
 // 👉 Only authenticated users can access these routes
 Route::group([
@@ -34,10 +31,8 @@ Route::group([
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', UserController::class);
 
-    Route::apiResource('divisions', DivisionController::class);
+    Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('employees', EmployeeController::class);
-
-    // // 👉 Nilai endpoints
-    // Route::get('nilaiRT', [NilaiController::class, 'nilaiRT'])->name('nilai.rt');
-    // Route::get('nilaiST', [NilaiController::class, 'nilaiST'])->name('nilai.st');
+    Route::apiResource('attendances', AttendanceController::class);
+    Route::get('attendance/histories', [AttendanceController::class, 'getAttendanceHistory'])->name('attendances.history');
 });

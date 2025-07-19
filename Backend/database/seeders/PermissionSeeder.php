@@ -26,6 +26,12 @@ class PermissionSeeder extends Seeder
             // User & Hak Akses
             'User',
             'Role',
+
+            'Department',
+            'Employee',
+
+            'Attendance',
+            'Attendance History',
         ];
 
         foreach ($models as $model) {
@@ -39,11 +45,11 @@ class PermissionSeeder extends Seeder
 
         // Assign all permissions to the Admin and Owner roles
         $admin = Role::findByName('admin');
-        $owner = Role::findByName('owner');
+        $employee = Role::findByName('employee');
 
         $permissions = Permission::all();
 
         $admin->syncPermissions($permissions);
-        $owner->syncPermissions($permissions);
+        $employee->syncPermissions($permissions);
     }
 }

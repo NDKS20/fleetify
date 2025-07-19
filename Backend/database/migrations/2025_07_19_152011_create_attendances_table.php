@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employees', function (Blueprint $table) {
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id', 50)->unique();
-            $table->foreignId('department_id');
-            $table->string('name');
-            $table->text('address');
+            $table->string('attendance_id', 100);
+            $table->string('employee_id', 50);
+            $table->timestamp('clock_in')->nullable();
+            $table->timestamp('clock_out')->nullable();
 
             $table->activation();
             $table->logs();
 
-            $table->foreign('department_id')
-                ->references('id')
-                ->on('departments')
+            $table->foreign('employee_id')
+                ->references('employee_id')
+                ->on('employees')
                 ->onUpdate('cascade')
                 ->onDelete('restrict');
         });
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employees');
+        Schema::dropIfExists('attendances');
     }
 };

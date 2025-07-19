@@ -17,7 +17,7 @@ class RoleController extends Controller
         'index' => ['read-role'],
         'show' => ['read-role'],
         'store' => ['create-role'],
-        'update' => ['edit-role'],
+        'update' => ['update-role'],
         'destroy' => ['delete-role'],
     ];
 

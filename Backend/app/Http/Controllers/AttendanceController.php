@@ -3,21 +3,22 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\EmployeeService;
-use App\Models\Employee;
+use App\Services\AttendanceService;
+use App\Models\Attendance;
 use App\Helpers\HasPermissionRestrictions;
 use App\Helpers\Error;
 
-class EmployeeController extends Controller
+class AttendanceController extends Controller
 {
     use HasPermissionRestrictions;
 
     const PERMISSIONS = [
-        'index' => ['read-employee'],
-        'show' => ['read-employee'],
-        'store' => ['create-employee'],
-        'update' => ['update-employee'],
-        'destroy' => ['delete-employee'],
+        'index' => ['read-attendance'],
+        'getAttendanceHistory' => ['read-attendance'],
+        'show' => ['read-attendance'],
+        'store' => ['create-attendance'],
+        'update' => ['update-attendance'],
+        'destroy' => ['delete-attendance'],
     ];
 
     /**
@@ -25,7 +26,12 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->respond(EmployeeService::getAllByRequest($request));
+        return $this->respond(AttendanceService::getAllByRequest($request));
+    }
+
+    public function getAttendanceHistory(Request $request)
+    {
+        return $this->respond(AttendanceService::getAttendanceHistory($request));
     }
 
     /**
@@ -33,7 +39,7 @@ class EmployeeController extends Controller
      */
     public function show(string $id)
     {
-        return $this->respond(EmployeeService::get($id));
+        return $this->respond(AttendanceService::get($id));
     }
 
     /**
@@ -41,19 +47,19 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $data = Employee::validate($request->all());
+        $data = Attendance::validate($request->all());
 
         if ($data instanceof Error) {
             return $this->respondError($data);
         }
 
-        $model = EmployeeService::store($data);
+        $model = AttendanceService::store($data);
 
         if ($model instanceof Error) {
             return $this->respondError($model);
         }
 
-        return $this->respondWithMessage($model, 'Data pegawai berhasil ditambahkan', 201);
+        return $this->respondWithMessage($model, 'Data kehadiran berhasil ditambahkan', 201);
     }
 
     /**
@@ -61,19 +67,19 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $data = Employee::validateUpdate($id, $request->all());
+        $data = Attendance::validateUpdate($id, $request->all());
 
         if ($data instanceof Error) {
             return $this->respondError($data);
         }
 
-        $model = EmployeeService::update($id, $data);
+        $model = AttendanceService::update($id, $data);
 
         if ($model instanceof Error) {
             return $this->respondError($model);
         }
 
-        return $this->respondWithMessage($model, 'Data pegawai berhasil diubah', 200);
+        return $this->respondWithMessage($model, 'Data kehadiran berhasil diubah', 200);
     }
 
     /**
@@ -81,12 +87,12 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        $result = EmployeeService::delete($id);
+        $result = AttendanceService::delete($id);
 
         if ($result instanceof Error) {
             return $this->respondError($result);
         }
 
-        return $this->respondWithMessage($result, 'Data pegawai berhasil dihapus', 200);
+        return $this->respondWithMessage($result, 'Data kehadiran berhasil dihapus', 200);
     }
 }

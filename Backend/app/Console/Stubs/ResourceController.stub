@@ -16,7 +16,7 @@ class {{ class }} extends Controller
         'index' => ['read-'],
         'show' => ['read-'],
         'store' => ['create-'],
-        'update' => ['edit-'],
+        'update' => ['update-'],
         'destroy' => ['delete-'],
     ];
 

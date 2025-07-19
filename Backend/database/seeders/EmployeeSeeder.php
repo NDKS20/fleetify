@@ -5,8 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
+use App\Models\User;
 use App\Models\Employee;
-use App\Models\Division;
+use App\Models\Department;
 
 class EmployeeSeeder extends Seeder
 {
@@ -17,37 +18,43 @@ class EmployeeSeeder extends Seeder
     {
         $faker = Faker::create('id_ID'); // Indonesian locale for more realistic names
 
-        // Get all division IDs
-        $divisionIds = Division::pluck('id')->toArray();
+        // Get all department IDs
+        $departmentIds = Department::pluck('id')->toArray();
 
-        $positions = [
-            'Senior Developer',
-            'Junior Developer',
-            'Tech Lead',
-            'Project Manager',
-            'QA Engineer',
-            'UI/UX Designer',
-            'DevOps Engineer',
-            'Product Manager',
-            'Business Analyst',
-            'Mobile Developer',
-            'Frontend Developer',
-            'Backend Developer',
-            'Full Stack Developer',
-        ];
+        // Check if departments exist
+        if (empty($departmentIds)) {
+            $this->command->error('No departments found. Please run DepartmentSeeder first.');
+            return;
+        }
+
+        $admin = User::where('username', 'admin')->first();
+
+        $addAdminToEmployee = Employee::create([
+            'name' => $admin->name,
+            'department_id' => $faker->randomElement($departmentIds),
+            'address' => $faker->address(),
+        ]);
+
+        $admin->employee_id = $addAdminToEmployee->employee_id;
+        $admin->save();
+
+        $employee = User::where('username', 'employee')->first();
+
+        $addEmployeeToEmployee = Employee::create([
+            'name' => $employee->name,
+            'department_id' => $faker->randomElement($departmentIds),
+            'address' => $faker->address(),
+        ]);
+
+        $employee->employee_id = $addEmployeeToEmployee->employee_id;
+        $employee->save();
 
         // Create 50 fake employees
         for ($i = 0; $i < 50; $i++) {
-            Employee::create([
-                'id' => Str::uuid(),
+            $employee = Employee::create([
                 'name' => $faker->name(),
-                'phone' => $faker->phoneNumber(),
-                'image' => $faker->imageUrl(400, 400, 'people', true, 'employee'), // Generates a fake image URL
-                'division_id' => $faker->randomElement($divisionIds),
-                'position' => $faker->randomElement($positions),
-                'is_active' => $faker->boolean(85), // 85% chance of being active
-                'deactivated_at' => null,
-                'deactivated_by' => null,
+                'department_id' => $faker->randomElement($departmentIds),
+                'address' => $faker->address(),
             ]);
         }
     }

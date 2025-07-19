@@ -16,9 +16,18 @@ class UserSeeder extends Seeder
             'name' => 'Superadmin',
             'username' => 'admin',
             'email' => 'admin@gmail.com',
-            'password' => bcrypt('pastibisa'),
+            'password' => bcrypt('admin'),
         ]);
 
         $admin->assignRole('admin');
+
+        $employee = User::create([
+            'name' => 'Employee',
+            'username' => 'employee',
+            'email' => 'employee@gmail.com',
+            'password' => bcrypt('employee'),
+        ]);
+
+        $employee->assignRole('employee');
     }
 }

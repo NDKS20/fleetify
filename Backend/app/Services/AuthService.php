@@ -54,7 +54,7 @@ class AuthService
 
     public static function me()
     {
-        return User::find(Auth::id());
+        return User::find(Auth::id())->load('employee.department');
     }
 
     public static function check()

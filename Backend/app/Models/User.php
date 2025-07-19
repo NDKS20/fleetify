@@ -54,7 +54,7 @@ class User extends Authenticatable implements JWTSubject
 
     protected $appends = [
         'access_permissions',
-        'role'
+        'role',
     ];
 
     /**
@@ -113,5 +113,10 @@ class User extends Authenticatable implements JWTSubject
     public function isOwner()
     {
         return $this->hasRole('owner');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
 }

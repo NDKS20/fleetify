@@ -24,7 +24,7 @@ return [
         'https://aksamedia-intern.demomixin.my.id/',
         'https://www.aksamedia-intern.demomixin.my.id',
         'https://www.aksamedia-intern.demomixin.my.id/',
-        'http://localhost:5103',
+        'http://localhost:5105',
     ],
 
     'allowed_origins_patterns' => [],

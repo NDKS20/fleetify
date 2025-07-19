@@ -3,21 +3,21 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\EmployeeService;
-use App\Models\Employee;
+use App\Services\DepartmentService;
+use App\Models\Department;
 use App\Helpers\HasPermissionRestrictions;
 use App\Helpers\Error;
 
-class EmployeeController extends Controller
+class DepartmentController extends Controller
 {
     use HasPermissionRestrictions;
 
     const PERMISSIONS = [
-        'index' => ['read-employee'],
-        'show' => ['read-employee'],
-        'store' => ['create-employee'],
-        'update' => ['update-employee'],
-        'destroy' => ['delete-employee'],
+        'index' => ['read-department'],
+        'show' => ['read-department'],
+        'store' => ['create-department'],
+        'update' => ['update-department'],
+        'destroy' => ['delete-department'],
     ];
 
     /**
@@ -25,7 +25,7 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        return $this->respond(EmployeeService::getAllByRequest($request));
+        return $this->respond(DepartmentService::getAllByRequest($request));
     }
 
     /**
@@ -33,7 +33,7 @@ class EmployeeController extends Controller
      */
     public function show(string $id)
     {
-        return $this->respond(EmployeeService::get($id));
+        return $this->respond(DepartmentService::get($id));
     }
 
     /**
@@ -41,19 +41,19 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $data = Employee::validate($request->all());
+        $data = Department::validate($request->all());
 
         if ($data instanceof Error) {
             return $this->respondError($data);
         }
 
-        $model = EmployeeService::store($data);
+        $model = DepartmentService::store($data);
 
         if ($model instanceof Error) {
             return $this->respondError($model);
         }
 
-        return $this->respondWithMessage($model, 'Data pegawai berhasil ditambahkan', 201);
+        return $this->respondWithMessage($model, 'Data departemen berhasil ditambahkan', 201);
     }
 
     /**
@@ -61,19 +61,19 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $data = Employee::validateUpdate($id, $request->all());
+        $data = Department::validateUpdate($id, $request->all());
 
         if ($data instanceof Error) {
             return $this->respondError($data);
         }
 
-        $model = EmployeeService::update($id, $data);
+        $model = DepartmentService::update($id, $data);
 
         if ($model instanceof Error) {
             return $this->respondError($model);
         }
 
-        return $this->respondWithMessage($model, 'Data pegawai berhasil diubah', 200);
+        return $this->respondWithMessage($model, 'Data departemen berhasil diubah', 200);
     }
 
     /**
@@ -81,12 +81,12 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        $result = EmployeeService::delete($id);
+        $result = DepartmentService::delete($id);
 
         if ($result instanceof Error) {
             return $this->respondError($result);
         }
 
-        return $this->respondWithMessage($result, 'Data pegawai berhasil dihapus', 200);
+        return $this->respondWithMessage($result, 'Data departemen berhasil dihapus', 200);
     }
 }

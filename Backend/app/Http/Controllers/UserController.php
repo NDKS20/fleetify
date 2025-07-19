@@ -16,7 +16,7 @@ class UserController extends Controller
         'index' => ['read-user'],
         'show' => ['read-user'],
         'store' => ['create-user'],
-        'update' => ['edit-user'],
+        'update' => ['update-user'],
         'destroy' => ['delete-user'],
     ];
 

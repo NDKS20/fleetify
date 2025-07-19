@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             UserSeeder::class,
 
-            DivisionSeeder::class,
+            DepartmentSeeder::class,
             EmployeeSeeder::class,
         ]);
     }

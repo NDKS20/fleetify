@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
-use App\Models\Employee;
+use App\Models\Department;
 use App\Helpers\Error;
 
-class EmployeeService implements ResourceService
+class DepartmentService implements ResourceService
 {
     public static function getAll($sorter = null, $search = null, $page = null, $perPage = null)
     {
-        return Employee::fetch(
+        return Department::fetch(
             sorter: $sorter,
             search: $search,
             page: $page,
@@ -27,35 +27,33 @@ class EmployeeService implements ResourceService
     public static function getAllByRequest(Request $request)
     {
         // TODO: Add searchColumns
-        return Employee::fetchByRequest($request, ['name', 'department.department_name', 'address'], extras: function ($query) {
-            $query->with('department');
-        });
+        return Department::fetchByRequest($request, ['department_name', 'max_clock_in_time', 'max_clock_out_time']);
     }
 
-    public static function get(string $id): Employee|Error
+    public static function get(string $id): Department|Error
     {
         try {
-            return Employee::findOrFail($id);
+            return Department::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             Log::error($e);
-            return new Error('Data pegawai tidak ditemukan', 404);
+            return new Error('Data departemen tidak ditemukan', 404);
         } catch (Exception $e) {
             Log::error($e);
             return new Error('Terjadi kesalahan', 400);
         }
     }
 
-    public static function store(array $data): Employee|Error
+    public static function store(array $data): Department|Error
     {
         try {
             DB::beginTransaction();
 
             // NOTE: Add your custom logic here
 
-            $model = Employee::create($data);
+            $model = Department::create($data);
 
             if (!$model) {
-                throw new Exception('Gagal menambahkan data pegawai');
+                throw new Exception('Gagal menambahkan data departemen');
             }
 
             DB::commit();
@@ -65,7 +63,7 @@ class EmployeeService implements ResourceService
             Log::error($e);
             DB::rollBack();
 
-            return new Error('Data pegawai sudah ada', 422);
+            return new Error('Data departemen sudah ada', 422);
         } catch (Exception $e) {
             Log::error($e);
             DB::rollBack();
@@ -74,17 +72,17 @@ class EmployeeService implements ResourceService
         }
     }
 
-    public static function update(string $id, array $data): Employee|Error
+    public static function update(string $id, array $data): Department|Error
     {
         try {
             DB::beginTransaction();
 
-            $model = Employee::findOrFail($id);
+            $model = Department::findOrFail($id);
 
             // NOTE: Add your custom logic here
 
             if (!$model->update($data)) {
-                throw new Exception('Gagal mengubah data pegawai');
+                throw new Exception('Gagal mengubah data departemen');
             }
 
             DB::commit();
@@ -94,7 +92,7 @@ class EmployeeService implements ResourceService
             Log::error($e);
             DB::rollBack();
 
-            return new Error('Data pegawai tidak ditemukan', 404);
+            return new Error('Data departemen tidak ditemukan', 404);
         } catch (Exception $e) {
             Log::error($e);
             DB::rollBack();
@@ -108,12 +106,12 @@ class EmployeeService implements ResourceService
         try {
             DB::beginTransaction();
 
-            $model = Employee::findOrFail($id);
+            $model = Department::findOrFail($id);
 
             // NOTE: Add your custom logic here
 
             if (!$model->delete()) {
-                throw new Exception('Gagal menghapus data pegawai');
+                throw new Exception('Gagal menghapus data departemen');
             }
 
             DB::commit();
@@ -123,7 +121,7 @@ class EmployeeService implements ResourceService
             Log::error($e);
             DB::rollBack();
 
-            return new Error('Data pegawai tidak ditemukan', 404);
+            return new Error('Data departemen tidak ditemukan', 404);
         } catch (Exception $e) {
             Log::error($e);
             DB::rollBack();
