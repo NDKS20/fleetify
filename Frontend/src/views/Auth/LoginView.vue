@@ -15,7 +15,10 @@
             <div class="bg-blue-50 dark:bg-blue-900/30 rounded-md font-mono text-xs">
               <div><strong>Email:</strong> admin@gmail.com</div>
               <div><strong>Password:</strong> admin</div>
-              <div><strong>Email:</strong> employee@gmail.com</div>
+              <div>
+                <strong>Email:</strong> employee0@gmail.com (tersedia 20 user employee0 -
+                employee19)
+              </div>
               <div><strong>Password:</strong> employee</div>
             </div>
           </div>

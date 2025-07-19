@@ -218,9 +218,7 @@
       <div class="bg-white dark:bg-gray-800 shadow rounded-lg mt-6">
         <div class="px-6 py-6">
           <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-              Ketepatan Absensi Karyawan
-            </h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Absensi Karyawan</h2>
           </div>
 
           <!-- Filter Controls -->
@@ -562,6 +560,299 @@
           </div>
         </div>
       </div>
+
+      <!-- Department Attendance Summary Section -->
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg mt-6">
+        <div class="px-6 py-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+              Ringkasan Absensi per Departemen
+            </h2>
+            <button
+              @click="fetchDepartmentAttendance"
+              :disabled="departmentAttendanceLoading"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg
+                v-if="departmentAttendanceLoading"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {{ departmentAttendanceLoading ? 'Memuat...' : 'Refresh' }}
+            </button>
+          </div>
+
+          <!-- Loading State -->
+          <div v-if="departmentAttendanceLoading" class="flex justify-center py-8">
+            <div
+              class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"
+            ></div>
+          </div>
+
+          <!-- No Data State -->
+          <div
+            v-else-if="
+              !departmentAttendanceLoading && Object.keys(departmentAttendanceData).length === 0
+            "
+            class="text-center py-8"
+          >
+            <svg
+              class="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                vector-effect="non-scaling-stroke"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+              />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+              Tidak ada data departemen
+            </h3>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Belum ada data absensi per departemen yang tersedia.
+            </p>
+          </div>
+
+          <!-- Department Attendance Tables -->
+          <div v-else class="space-y-6">
+            <div
+              v-for="(deptData, deptName) in departmentAttendanceData"
+              :key="deptName"
+              class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+            >
+              <!-- Department Header -->
+              <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                      {{ deptData.department_info.department_name }}
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Batas Masuk: {{ deptData.department_info.max_clock_in_time }} | Batas Keluar:
+                      {{ deptData.department_info.max_clock_out_time }}
+                    </p>
+                  </div>
+
+                  <!-- Department Statistics -->
+                  <div class="mt-3 sm:mt-0 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div class="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg">
+                      <div class="text-lg font-bold text-gray-900 dark:text-white">
+                        {{ deptData.status.total_records }}
+                      </div>
+                      <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900 px-3 py-2 rounded-lg">
+                      <div class="text-lg font-bold text-green-700 dark:text-green-300">
+                        {{ deptData.status.tepat_waktu }}
+                      </div>
+                      <div class="text-xs text-green-600 dark:text-green-400">Tepat Waktu</div>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-900 px-3 py-2 rounded-lg">
+                      <div class="text-lg font-bold text-red-700 dark:text-red-300">
+                        {{ deptData.status.terlambat }}
+                      </div>
+                      <div class="text-xs text-red-600 dark:text-red-400">Terlambat</div>
+                    </div>
+                    <div class="bg-yellow-50 dark:bg-yellow-900 px-3 py-2 rounded-lg">
+                      <div class="text-lg font-bold text-yellow-700 dark:text-yellow-300">
+                        {{ deptData.status.terlalu_lama }}
+                      </div>
+                      <div class="text-xs text-yellow-600 dark:text-yellow-400">Terlalu Lama</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Punctuality Rate -->
+                <div class="mt-4">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600 dark:text-gray-400">Tingkat Ketepatan:</span>
+                    <span class="font-medium text-gray-900 dark:text-white">
+                      {{ deptData.status.punctuality_rate }}%
+                    </span>
+                  </div>
+                  <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mt-2">
+                    <div
+                      class="h-2 rounded-full transition-all duration-300"
+                      :class="
+                        deptData.status.punctuality_rate >= 80
+                          ? 'bg-green-500'
+                          : deptData.status.punctuality_rate >= 60
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
+                      "
+                      :style="{ width: deptData.status.punctuality_rate + '%' }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Department Attendance Table -->
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                  <thead class="bg-gray-100 dark:bg-gray-600">
+                    <tr>
+                      <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Pegawai
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Tanggal
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Absen Masuk
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Absen Keluar
+                      </th>
+                      <th
+                        scope="col"
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                      >
+                        Status Keterlambatan
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600"
+                  >
+                    <tr
+                      v-for="attendance in deptData.attendance"
+                      :key="attendance.id"
+                      class="hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        {{ attendance.employee?.name || '-' }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        {{ attendanceStore.formatDisplayDate(attendance.created_at) }}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div v-if="attendance.clock_in">
+                          <div class="text-gray-900 dark:text-white">
+                            {{ attendanceStore.formatDisplayTime(attendance.clock_in) }}
+                          </div>
+                          <div
+                            v-if="getClockInHistoryStatus(attendance)"
+                            class="text-xs mt-1"
+                            :class="
+                              getClockInHistoryStatus(attendance)?.status === 'terlambat'
+                                ? 'text-red-600'
+                                : 'text-green-600'
+                            "
+                          >
+                            {{ getClockInHistoryStatus(attendance)?.message }}
+                            <span v-if="getClockInHistoryStatus(attendance)?.late_duration">
+                              ({{ getClockInHistoryStatus(attendance)?.late_duration }})
+                            </span>
+                          </div>
+                        </div>
+                        <span v-else class="text-gray-400 dark:text-gray-500">-</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div v-if="attendance.clock_out">
+                          <div class="text-gray-900 dark:text-white">
+                            {{ attendanceStore.formatDisplayTime(attendance.clock_out) }}
+                          </div>
+                          <div
+                            v-if="getClockOutHistoryStatus(attendance)"
+                            class="text-xs mt-1"
+                            :class="
+                              getClockOutHistoryStatus(attendance)?.status === 'terlalu_lama'
+                                ? 'text-red-600'
+                                : 'text-green-600'
+                            "
+                          >
+                            {{ getClockOutHistoryStatus(attendance)?.message }}
+                            <span v-if="getClockOutHistoryStatus(attendance)?.early_duration">
+                              ({{ getClockOutHistoryStatus(attendance)?.early_duration }})
+                            </span>
+                          </div>
+                        </div>
+                        <span v-else class="text-gray-400 dark:text-gray-500">-</span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <div class="space-y-1">
+                          <div
+                            v-for="history in attendance.attendance_histories"
+                            :key="history.id"
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                            :class="[
+                              history.punctuality?.status === 'tepat_waktu'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : history.punctuality?.status === 'terlambat'
+                                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                  : history.punctuality?.status === 'terlalu_lama'
+                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+                            ]"
+                          >
+                            <span class="mr-1">
+                              {{
+                                history.punctuality?.status === 'tepat_waktu'
+                                  ? '✓'
+                                  : history.punctuality?.status === 'terlambat'
+                                    ? '⚠'
+                                    : history.punctuality?.status === 'terlalu_lama'
+                                      ? '⏰'
+                                      : '?'
+                              }}
+                            </span>
+                            {{ history.punctuality?.message || 'Unknown' }}
+                            {{ history.attendance_type === 1 ? '(Masuk)' : '(Keluar)' }}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- Empty State for Department -->
+                    <tr v-if="deptData.attendance.length === 0">
+                      <td
+                        colspan="5"
+                        class="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                      >
+                        Tidak ada data absensi untuk departemen ini.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -574,6 +865,70 @@ import { useToastStore } from '../stores/toast'
 import { useDepartmentStore } from '../stores/department'
 import axios from 'axios'
 
+// Types for department attendance
+interface DepartmentInfo {
+  id: number
+  department_name: string
+  max_clock_in_time: string
+  max_clock_out_time: string
+}
+
+interface PunctualityInfo {
+  status: 'tepat_waktu' | 'terlambat' | 'terlalu_lama'
+  message: string
+  max_time: string
+  actual_time: string
+  late_duration?: string
+  early_duration?: string
+  type: 'masuk' | 'keluar'
+}
+
+interface AttendanceHistory {
+  id: number
+  attendance_id: number
+  employee_id: string
+  date_attendance: string
+  attendance_type: number
+  description: string
+  punctuality?: PunctualityInfo
+}
+
+interface Employee {
+  id: number
+  employee_id: string
+  name: string
+  department?: DepartmentInfo
+}
+
+interface DepartmentAttendance {
+  id: number
+  attendance_id: string
+  employee_id: string
+  clock_in: string | null
+  clock_out: string | null
+  created_at: string
+  employee?: Employee
+  attendance_histories?: AttendanceHistory[]
+}
+
+interface DepartmentStatus {
+  total_records: number
+  tepat_waktu: number
+  terlambat: number
+  terlalu_lama: number
+  punctuality_rate: number
+}
+
+interface DepartmentData {
+  department_info: DepartmentInfo
+  attendance: DepartmentAttendance[]
+  status: DepartmentStatus
+}
+
+interface DepartmentAttendanceResponse {
+  [departmentName: string]: DepartmentData
+}
+
 const authStore = useAuthStore()
 const attendanceStore = useAttendanceStore()
 const toastStore = useToastStore()
@@ -585,6 +940,10 @@ const selectedDepartment = ref('')
 const searchTerm = ref('')
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+
+// State for department attendance
+const departmentAttendanceData = ref<DepartmentAttendanceResponse>({})
+const departmentAttendanceLoading = ref(false)
 
 // Computed
 const filteredAttendance = computed(() => {
@@ -763,6 +1122,7 @@ const handleClockIn = async () => {
     })
 
     fetchAttendanceData()
+    fetchDepartmentAttendance()
   } catch (error) {
     console.error('Clock in error:', error)
     toastStore.error('Gagal absen masuk. Silakan coba lagi.', {
@@ -782,6 +1142,7 @@ const handleClockOut = async () => {
     })
 
     fetchAttendanceData()
+    fetchDepartmentAttendance()
   } catch (error) {
     console.error('Clock out error:', error)
     toastStore.error('Gagal absen keluar. Silakan coba lagi.', {
@@ -872,11 +1233,48 @@ const getClockOutTextColor = (clockOutTime: string, maxClockOutTime: string) => 
     : 'text-gray-900 dark:text-white'
 }
 
+// Fetch department attendance data
+const fetchDepartmentAttendance = async () => {
+  try {
+    departmentAttendanceLoading.value = true
+    const response = await axios.get('/attendance/by-department')
+    departmentAttendanceData.value = response.data
+  } catch (error) {
+    console.error('Error fetching department attendance:', error)
+    toastStore.error('Gagal memuat data absensi per departemen', {
+      title: 'Error',
+      duration: 4000,
+    })
+  } finally {
+    departmentAttendanceLoading.value = false
+  }
+}
+
+// Get clock in history status
+const getClockInHistoryStatus = (attendance: DepartmentAttendance) => {
+  const clockInHistory = attendance.attendance_histories?.find(
+    (h: AttendanceHistory) => h.attendance_type === 1,
+  )
+  return clockInHistory?.punctuality
+}
+
+// Get clock out history status
+const getClockOutHistoryStatus = (attendance: DepartmentAttendance) => {
+  const clockOutHistory = attendance.attendance_histories?.find(
+    (h: AttendanceHistory) => h.attendance_type === 2,
+  )
+  return clockOutHistory?.punctuality
+}
+
 // Initialize attendance data when component mounts
 onMounted(async () => {
   try {
     // Load today's attendance, department data, and attendance history
-    await Promise.all([attendanceStore.fetchTodayAttendance(), fetchAttendanceData()])
+    await Promise.all([
+      attendanceStore.fetchTodayAttendance(),
+      fetchAttendanceData(),
+      fetchDepartmentAttendance(),
+    ])
 
     // Initialize department store and fetch from API
     departmentStore.init()
