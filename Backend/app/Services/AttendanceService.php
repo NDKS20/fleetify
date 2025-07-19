@@ -51,6 +51,73 @@ class AttendanceService implements ResourceService
         return $attendanceHistories;
     }
 
+    public static function getAttendanceByDepartment(Request $request)
+    {
+        // Get all attendance records with employee, department data, and their attendance histories
+        $attendances = Attendance::with(['employee.department', 'attendanceHistories'])
+            ->whereHas('employee.department')
+            ->get();
+
+        // Group data by department
+        $departmentData = [];
+
+        // Process attendances with their related attendance histories
+        foreach ($attendances as $attendance) {
+            $departmentName = $attendance->employee->department->department_name;
+
+            if (!isset($departmentData[$departmentName])) {
+                $departmentData[$departmentName] = [
+                    'department_info' => [
+                        'id' => $attendance->employee->department->id,
+                        'department_name' => $departmentName,
+                        'max_clock_in_time' => $attendance->employee->department->max_clock_in_time,
+                        'max_clock_out_time' => $attendance->employee->department->max_clock_out_time,
+                    ],
+                    'attendance' => [],
+                    'status' => [
+                        'total_records' => 0,
+                        'tepat_waktu' => 0,
+                        'terlambat' => 0,
+                        'terlalu_lama' => 0,
+                        'punctuality_rate' => 0,
+                    ]
+                ];
+            }
+
+            // Convert attendance to array and process its attendance histories
+            $attendanceArray = $attendance->toArray();
+
+            // Process each attendance history for this attendance record
+            if (isset($attendanceArray['attendance_histories'])) {
+                foreach ($attendanceArray['attendance_histories'] as &$history) {
+                    // Add employee and department data to history for punctuality calculation
+                    $history['employee'] = $attendanceArray['employee'];
+
+                    // Calculate punctuality for each history record
+                    $punctuality = self::calculatePunctualityStatus($history);
+                    $history['punctuality'] = $punctuality;
+
+                    // Update status counters
+                    $departmentData[$departmentName]['status']['total_records']++;
+                    $departmentData[$departmentName]['status'][$punctuality['status']]++;
+                }
+            }
+
+            $departmentData[$departmentName]['attendance'][] = $attendanceArray;
+        }
+
+        // Calculate punctuality rates for each department
+        foreach ($departmentData as $departmentName => &$data) {
+            $total = $data['status']['total_records'];
+            if ($total > 0) {
+                $onTime = $data['status']['tepat_waktu'];
+                $data['status']['punctuality_rate'] = round(($onTime / $total) * 100, 2);
+            }
+        }
+
+        return $departmentData;
+    }
+
     /**
      * Calculate punctuality status for attendance history record
      */
@@ -112,7 +179,7 @@ class AttendanceService implements ResourceService
                 $earlyDuration = $maxTime->diff($actualTime);
 
                 return [
-                    'status' => 'terlalu_cepat',
+                    'status' => 'terlalu_lama',
                     'message' => 'Keluar terlalu lama',
                     'max_time' => $maxClockOutTime,
                     'actual_time' => $attendanceTimeOnly,

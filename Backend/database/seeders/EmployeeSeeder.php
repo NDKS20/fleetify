@@ -38,16 +38,18 @@ class EmployeeSeeder extends Seeder
         $admin->employee_id = $addAdminToEmployee->employee_id;
         $admin->save();
 
-        $employee = User::where('username', 'employee')->first();
+        $employee = User::where('username', 'like', '%employee%')->get();
 
-        $addEmployeeToEmployee = Employee::create([
-            'name' => $employee->name,
-            'department_id' => $faker->randomElement($departmentIds),
-            'address' => $faker->address(),
-        ]);
+        foreach ($employee as $e) {
+            $addEmployeeToEmployee = Employee::create([
+                'name' => $e->name,
+                'department_id' => $faker->randomElement($departmentIds),
+                'address' => $faker->address(),
+            ]);
 
-        $employee->employee_id = $addEmployeeToEmployee->employee_id;
-        $employee->save();
+            $e->employee_id = $addEmployeeToEmployee->employee_id;
+            $e->save();
+        }
 
         // Create 50 fake employees
         for ($i = 0; $i < 50; $i++) {

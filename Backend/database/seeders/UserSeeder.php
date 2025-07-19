@@ -21,13 +21,15 @@ class UserSeeder extends Seeder
 
         $admin->assignRole('admin');
 
-        $employee = User::create([
-            'name' => 'Employee',
-            'username' => 'employee',
-            'email' => 'employee@gmail.com',
-            'password' => bcrypt('employee'),
-        ]);
+        for ($i = 0; $i < 20; $i++) {
+            $employee = User::create([
+                'name' => 'Employee ' . $i,
+                'username' => 'employee' . $i,
+                'email' => 'employee' . $i . '@gmail.com',
+                'password' => bcrypt('employee'),
+            ]);
 
-        $employee->assignRole('employee');
+            $employee->assignRole('employee');
+        }
     }
 }

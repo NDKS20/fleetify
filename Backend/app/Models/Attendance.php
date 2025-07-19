@@ -109,4 +109,9 @@ class Attendance extends ExtendedModel
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'employee_id');
     }
+
+    public function attendanceHistories()
+    {
+        return $this->hasMany(AttendanceHistory::class, 'attendance_id');
+    }
 }

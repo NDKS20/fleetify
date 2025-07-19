@@ -35,4 +35,5 @@ Route::group([
     Route::apiResource('employees', EmployeeController::class);
     Route::apiResource('attendances', AttendanceController::class);
     Route::get('attendance/histories', [AttendanceController::class, 'getAttendanceHistory'])->name('attendances.history');
+    Route::get('attendance/by-department', [AttendanceController::class, 'getAttendanceByDepartment'])->name('attendances.by-department');
 });

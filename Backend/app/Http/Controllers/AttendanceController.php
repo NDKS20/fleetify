@@ -15,6 +15,7 @@ class AttendanceController extends Controller
     const PERMISSIONS = [
         'index' => ['read-attendance'],
         'getAttendanceHistory' => ['read-attendance'],
+        'getAttendanceByDepartment' => ['read-attendance'],
         'show' => ['read-attendance'],
         'store' => ['create-attendance'],
         'update' => ['update-attendance'],
@@ -32,6 +33,11 @@ class AttendanceController extends Controller
     public function getAttendanceHistory(Request $request)
     {
         return $this->respond(AttendanceService::getAttendanceHistory($request));
+    }
+
+    public function getAttendanceByDepartment(Request $request)
+    {
+        return $this->respond(AttendanceService::getAttendanceByDepartment($request));
     }
 
     /**

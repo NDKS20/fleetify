@@ -20,10 +20,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://aksamedia-intern.demomixin.my.id',
-        'https://aksamedia-intern.demomixin.my.id/',
-        'https://www.aksamedia-intern.demomixin.my.id',
-        'https://www.aksamedia-intern.demomixin.my.id/',
+        'https://fleetify-intern.demomixin.my.id',
+        'https://fleetify-intern.demomixin.my.id/',
         'http://localhost:5105',
     ],
 
