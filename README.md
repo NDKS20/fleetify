@@ -20,9 +20,9 @@ php artisan migrate:fresh --seed
 ## Node.js
 
 ```bash
-npm install
-npm run dev
-npm run build
+yarn install
+yarn run dev
+yarn run build
 ```
 
 ## API - Must Login
